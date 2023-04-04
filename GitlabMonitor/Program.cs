@@ -6,10 +6,7 @@ var config = new ConfigurationBuilder()
     .Build();
 
 Host.CreateDefaultBuilder(args)
-    .ConfigureLogging(builder =>
-    {
-        builder.AddConfiguration(config.GetSection("Logging"));
-    })
+    .ConfigureLogging(builder => { builder.AddConfiguration(config.GetSection("Logging")); })
     .ConfigureServices(services =>
     {
         services.AddGitlabClient(config.GetValue<string>("Gitlab:Url"), config.GetValue<string>("Gitlab:Token"));

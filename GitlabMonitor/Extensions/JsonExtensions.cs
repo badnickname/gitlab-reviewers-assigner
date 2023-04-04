@@ -18,8 +18,9 @@ public static class JsonExtensions
 
         return result!;
     }
-    
-    public static string SerializeJson<T>(this T obj) {
+
+    public static string SerializeJson<T>(this T obj)
+    {
         var result = JsonConvert.SerializeObject(obj, new JsonSerializerSettings
         {
             ContractResolver = new DefaultContractResolver

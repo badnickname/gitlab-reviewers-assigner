@@ -3,7 +3,7 @@
 public static class HttpClientExtensions
 {
     private const string Gitlab = "Gitlab";
-    
+
     public static HttpClient CreateGitlabClient(this IHttpClientFactory factory)
     {
         return factory.CreateClient(Gitlab);
@@ -11,7 +11,7 @@ public static class HttpClientExtensions
 
     public static void AddGitlabClient(this IServiceCollection services, string url, string token)
     {
-        services.AddHttpClient(Gitlab,options =>
+        services.AddHttpClient(Gitlab, options =>
         {
             options.BaseAddress = new Uri($"{url}/api/v4/", UriKind.Absolute);
             options.DefaultRequestHeaders.Add("PRIVATE-TOKEN", token);

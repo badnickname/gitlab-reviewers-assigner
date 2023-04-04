@@ -1,12 +1,12 @@
 using GitlabMonitor.Extensions;
-using GitlabMonitor.Models;
+using GitlabMonitor.Model.Merge;
 
 namespace GitlabMonitor;
 
 public class Worker : BackgroundService
 {
-    private readonly ILogger<Worker> _logger;
     private readonly IHttpClientFactory _factory;
+    private readonly ILogger<Worker> _logger;
 
     public Worker(ILogger<Worker> logger, IHttpClientFactory factory)
     {
