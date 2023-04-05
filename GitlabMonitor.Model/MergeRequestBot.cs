@@ -6,12 +6,12 @@ public sealed class MergeRequestBot
 {
     private readonly IContext _context;
     private readonly Projects _projects;
-    private readonly Usernames _usernames;
+    private readonly UserIds _userIds;
 
-    public MergeRequestBot(IContext context, Usernames usernames, Projects projects)
+    public MergeRequestBot(IContext context, UserIds userIds, Projects projects)
     {
         _context = context;
-        _usernames = usernames;
+        _userIds = userIds;
         _projects = projects;
     }
 
@@ -19,7 +19,7 @@ public sealed class MergeRequestBot
     {
         var botId = await _context.GetBotUserIdAsync(token);
 
-        await _context.CreateUsersByUsernames(_usernames, token);
+        await _context.CreateUsers(_userIds, token);
 
         var merges = await _context.GetMergeRequestsFromProjectsAsync(_projects, token);
 
@@ -38,8 +38,10 @@ public sealed class MergeRequestBot
                 if (assignedMerge.References?.Full == mergeRequest.References?.Full ||
                     CalculateSimilarity(assignedMerge.Title, mergeRequest.Title) > 0.8)
                 {
-                    await _context.AssignToMergeRequestAsync(projectId, mergeId, assignedMerge.Reviewers.First().Id,
-                        token);
+                    var userId = assignedMerge.Reviewers.First().Id;
+                    if (!_userIds.Contains(userId))
+                        break;
+                    await _context.AssignToMergeRequestAsync(projectId, mergeId, userId, token);
                     isAssigned = true;
                     break;
                 }
@@ -54,8 +56,10 @@ public sealed class MergeRequestBot
                 if (assignedMerge.References == mergeRequest.References?.Full ||
                     CalculateSimilarity(assignedMerge.Title, mergeRequest.Title) > 0.5)
                 {
-                    await _context.AssignToMergeRequestAsync(projectId, mergeId, assignedMerge.ReviewerId,
-                        token);
+                    var userId = assignedMerge.ReviewerId;
+                    if (!_userIds.Contains(userId))
+                        break;
+                    await _context.AssignToMergeRequestAsync(projectId, mergeId, userId, token);
                     isAssigned = true;
                     break;
                 }
@@ -66,7 +70,9 @@ public sealed class MergeRequestBot
 
             var usersLoad = await _context.GetAssignedMergeRequestsCountAsync(token);
 
-            var suggestedUserId = usersLoad.MaxBy(x => x.Count).UserId;
+            var suggestedUserId = usersLoad
+                .Where(x => _userIds.Contains(x.UserId))
+                .MinBy(x => x.Count).UserId;
 
             await _context.AssignToMergeRequestAsync(projectId, mergeId, suggestedUserId, token);
         }

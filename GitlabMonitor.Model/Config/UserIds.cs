@@ -1,5 +1,5 @@
 ﻿namespace GitlabMonitor.Model.Config;
 
-public sealed class Usernames : List<string>
+public sealed class UserIds : List<int>
 {
 }

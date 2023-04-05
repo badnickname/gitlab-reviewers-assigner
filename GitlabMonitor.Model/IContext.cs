@@ -8,9 +8,9 @@ public interface IContext
     /// <summary>
     ///     Создает список пользователей по userName
     /// </summary>
-    /// <param name="userNames">Список имен</param>
+    /// <param name="userIds">Список Id</param>
     /// <returns>Список пользователей</returns>
-    public Task CreateUsersByUsernames(ICollection<string> userNames, CancellationToken token);
+    public Task CreateUsers(ICollection<int> userIds, CancellationToken token);
 
     /// <summary>
     /// Найти ид пользователя для бота
