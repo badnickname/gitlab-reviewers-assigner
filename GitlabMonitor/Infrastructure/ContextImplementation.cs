@@ -30,9 +30,8 @@ public sealed class ContextImplementation : IContext
             {
                 UserId = userId
             });
+            await _context.SaveChangesAsync(token);
         }
-
-        await _context.SaveChangesAsync(token);
     }
 
     public Task<int> GetBotUserIdAsync(CancellationToken token)
