@@ -6,11 +6,17 @@ namespace GitlabMonitor.Model;
 public interface IContext
 {
     /// <summary>
-    ///     Найти пользователей по Username
+    ///     Создает список пользователей по userName
     /// </summary>
     /// <param name="userNames">Список имен</param>
     /// <returns>Список пользователей</returns>
-    public Task<ICollection<User>> GetUsersByUsernamesAsync(ICollection<string> userNames, CancellationToken token);
+    public Task CreateUsersByUsernames(ICollection<string> userNames, CancellationToken token);
+
+    /// <summary>
+    /// Найти ид пользователя для бота
+    /// </summary>
+    /// <returns>user_id</returns>
+    public Task<int> GetBotUserIdAsync(CancellationToken token);
 
     /// <summary>
     ///     Загрузить текущие открытые MergeRequests из проектов
@@ -23,8 +29,8 @@ public interface IContext
     /// <summary>
     ///     Получить количество назначенных МР на человека
     /// </summary>
-    /// <returns>Словарь [ид_пользователя] = количество реквестов</returns>
-    public Task<IDictionary<int, int>> GetAssignedMergeRequestsCountAsync(CancellationToken token);
+    /// <returns>Кортедж [ид_пользователя] = количество реквестов</returns>
+    public Task<ICollection<(int UserId, int Count)>> GetAssignedMergeRequestsCountAsync(CancellationToken token);
 
     /// <summary>
     ///     Получить последние обработанные МР

@@ -16,9 +16,9 @@ public sealed class MergeRequest
 
     public User Author { get; set; }
 
-    public User Assignee { get; set; }
+    public User? Assignee { get; set; }
 
     public ICollection<User> Reviewers { get; set; }
 
-    public Reference References { get; set; }
+    public Reference? References { get; set; }
 }
