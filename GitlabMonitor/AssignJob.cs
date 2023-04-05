@@ -1,7 +1,6 @@
 ﻿using GitlabMonitor.Infrastructure;
 using GitlabMonitor.Model;
 using GitlabMonitor.Model.Config;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Quartz;
 
