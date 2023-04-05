@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Text;
+using Dapper;
 using GitlabMonitor.Extensions;
 using GitlabMonitor.Model;
 using GitlabMonitor.Model.Merge;
@@ -103,12 +104,12 @@ public sealed class ContextImplementation : IContext
         var client = _factory.CreateGitlabClient();
         var payload = new
         {
-            ReviewersIds = new []
+            ReviewerIds = new []
             {
                 userId
             }
         };
-        var request = new StringContent(payload.SerializeJson());
+        var request = new StringContent(payload.SerializeJson(), Encoding.UTF8, "application/json");
         await client.PutAsync(new Uri($"projects/{projectId}/merge_requests/{mergeRequestId}", UriKind.Relative), request, token);
     }
 }
