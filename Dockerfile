@@ -3,7 +3,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["GitlabMonitor.csproj", "./"]
+COPY ["GitlabMonitor/GitlabMonitor.csproj", "./"]
 RUN dotnet restore "GitlabMonitor.csproj"
 COPY . .
 WORKDIR "/src/"
