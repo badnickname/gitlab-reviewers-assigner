@@ -15,4 +15,10 @@ public sealed class ApplicationContext : DbContext
         Database.EnsureCreated();
 #endif
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Reviewer>()
+            .HasIndex(x => x.UserId);
+    }
 }
