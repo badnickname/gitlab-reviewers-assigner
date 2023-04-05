@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using GitlabMonitor.Extensions;
 using GitlabMonitor.Model;
 using GitlabMonitor.Model.Merge;
 using GitlabMonitor.Model.Statistic;
@@ -34,14 +35,27 @@ public sealed class ContextImplementation : IContext
         }
     }
 
-    public Task<int> GetBotUserIdAsync(CancellationToken token)
+    public async Task<int> GetBotUserIdAsync(CancellationToken token)
     {
-        throw new NotImplementedException();
+        var client = _factory.CreateGitlabClient();
+        var response = await client.GetAsync(new Uri("user", UriKind.Relative), token);
+        var content = await response.Content.ReadAsStringAsync(token);
+        var user = content.DeserializeJson<User>();
+        return user.Id;
     }
 
-    public Task<ICollection<MergeRequest>> GetMergeRequestsFromProjectsAsync(ICollection<int> projectIds, CancellationToken token)
+    public async Task<ICollection<MergeRequest>> GetMergeRequestsFromProjectsAsync(ICollection<int> projectIds, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var client = _factory.CreateGitlabClient();
+        IEnumerable<MergeRequest> merges = Array.Empty<MergeRequest>();
+        foreach (var projectId in projectIds)
+        {
+            var response = await client.GetAsync(new Uri($"projects/{projectId}/merge_requests?state=opened", UriKind.Relative), token);
+            var content = await response.Content.ReadAsStringAsync(token);
+            merges = merges.Concat(content.DeserializeJson<ICollection<MergeRequest>>());
+        }
+
+        return merges.ToList();
     }
 
     public async Task<ICollection<(int UserId, int Count)>> GetAssignedMergeRequestsCountAsync(CancellationToken token)
@@ -86,6 +100,15 @@ public sealed class ContextImplementation : IContext
 
         await _context.SaveChangesAsync(token);
         
-        throw new NotImplementedException();
+        var client = _factory.CreateGitlabClient();
+        var payload = new
+        {
+            ReviewersIds = new []
+            {
+                userId
+            }
+        };
+        var request = new StringContent(payload.SerializeJson());
+        await client.PutAsync(new Uri($"projects/{projectId}/merge_requests/{mergeRequestId}", UriKind.Relative), request, token);
     }
 }
