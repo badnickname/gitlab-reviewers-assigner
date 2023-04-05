@@ -17,9 +17,22 @@ public sealed class ContextImplementation : IContext
         _context = context;
     }
 
-    public Task CreateUsers(ICollection<int> userIds, CancellationToken token)
+    public async Task CreateUsers(ICollection<int> userIds, CancellationToken token)
     {
-        throw new NotImplementedException();
+        var connection = _context.Database.GetDbConnection();
+        
+        foreach (var userId in userIds)
+        {
+            var count = await connection.QuerySingleAsync<int>("SELECT COUNT(1) FROM Reviewers WHERE UserId = @UserId",
+                new { UserId = userId });
+            if (count > 0) continue;
+            _context.Reviewers.Add(new Reviewer
+            {
+                UserId = userId
+            });
+        }
+
+        await _context.SaveChangesAsync(token);
     }
 
     public Task<int> GetBotUserIdAsync(CancellationToken token)
@@ -51,6 +64,7 @@ public sealed class ContextImplementation : IContext
             .OrderByDescending(x => x.Id)
             .Include(x => x.Reviewer)
             .AsNoTracking()
+            .Take(20)
             .ToListAsync(token);
 
         return result;

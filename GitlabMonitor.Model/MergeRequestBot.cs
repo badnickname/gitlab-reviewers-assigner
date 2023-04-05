@@ -49,7 +49,8 @@ public sealed class MergeRequestBot
             if (isAssigned)
                 continue;
             
-            var lastMerges = await _context.GetLastAssignedMergeRequests(token);
+            var lastMerges = (await _context.GetLastAssignedMergeRequests(token))
+                .Where(x => x.ProjectId != projectId || x.MergeId != mergeId);
             
             foreach (var assignedMerge in lastMerges)
             {
