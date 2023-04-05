@@ -17,6 +17,7 @@ Host.CreateDefaultBuilder(args)
         services.Configure<UserIds>(config.GetSection("Gitlab:UserIds"));
         services.AddScoped<IContext, ContextImplementation>();
         services.AddGitlabClient(config.GetValue<string>("Gitlab:Url"), config.GetValue<string>("Gitlab:Token"));
+        services.AddSqlite<ApplicationContext>(config.GetValue<string>("Sqlite:Connection"));
         services.AddQuartz(q =>
         {
             q.UseMicrosoftDependencyInjectionJobFactory();

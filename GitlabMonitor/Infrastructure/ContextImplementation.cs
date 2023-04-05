@@ -6,6 +6,13 @@ namespace GitlabMonitor.Infrastructure;
 
 public sealed class ContextImplementation : IContext
 {
+    private readonly IHttpClientFactory _factory;
+
+    public ContextImplementation(IHttpClientFactory factory)
+    {
+        _factory = factory;
+    }
+
     public Task CreateUsers(ICollection<int> userIds, CancellationToken token)
     {
         throw new NotImplementedException();
