@@ -6,6 +6,10 @@
 public sealed class AssignedMergeRequest
 {
     public int Id { get; set; }
+    
+    public int ProjectId { get; set; }
+    
+    public int MergeId { get; set; }
 
     public int ReviewerId { get; set; }
 

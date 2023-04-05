@@ -41,7 +41,7 @@ public sealed class MergeRequestBot
                     var userId = assignedMerge.Reviewers.First().Id;
                     if (!_userIds.Contains(userId))
                         break;
-                    await _context.AssignToMergeRequestAsync(projectId, mergeId, userId, token);
+                    await _context.AssignToMergeRequestAsync(projectId, mergeId, mergeRequest.Title, mergeRequest.References?.Full, userId, token);
                     isAssigned = true;
                     break;
                 }
@@ -56,10 +56,10 @@ public sealed class MergeRequestBot
                 if (assignedMerge.References == mergeRequest.References?.Full ||
                     CalculateSimilarity(assignedMerge.Title, mergeRequest.Title) > 0.5)
                 {
-                    var userId = assignedMerge.ReviewerId;
+                    var userId = assignedMerge.Reviewer.UserId;
                     if (!_userIds.Contains(userId))
                         break;
-                    await _context.AssignToMergeRequestAsync(projectId, mergeId, userId, token);
+                    await _context.AssignToMergeRequestAsync(projectId, mergeId, mergeRequest.Title, mergeRequest.References?.Full, userId, token);
                     isAssigned = true;
                     break;
                 }
@@ -74,7 +74,7 @@ public sealed class MergeRequestBot
                 .Where(x => _userIds.Contains(x.UserId))
                 .MinBy(x => x.Count).UserId;
 
-            await _context.AssignToMergeRequestAsync(projectId, mergeId, suggestedUserId, token);
+            await _context.AssignToMergeRequestAsync(projectId, mergeId, mergeRequest.Title, mergeRequest.References?.Full, suggestedUserId, token);
         }
     }
 

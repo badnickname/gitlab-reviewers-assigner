@@ -1,16 +1,20 @@
-﻿using GitlabMonitor.Model;
+﻿using Dapper;
+using GitlabMonitor.Model;
 using GitlabMonitor.Model.Merge;
 using GitlabMonitor.Model.Statistic;
+using Microsoft.EntityFrameworkCore;
 
 namespace GitlabMonitor.Infrastructure;
 
 public sealed class ContextImplementation : IContext
 {
     private readonly IHttpClientFactory _factory;
+    private readonly ApplicationContext _context;
 
-    public ContextImplementation(IHttpClientFactory factory)
+    public ContextImplementation(IHttpClientFactory factory, ApplicationContext context)
     {
         _factory = factory;
+        _context = context;
     }
 
     public Task CreateUsers(ICollection<int> userIds, CancellationToken token)
@@ -28,18 +32,47 @@ public sealed class ContextImplementation : IContext
         throw new NotImplementedException();
     }
 
-    public Task<ICollection<(int UserId, int Count)>> GetAssignedMergeRequestsCountAsync(CancellationToken token)
+    public async Task<ICollection<(int UserId, int Count)>> GetAssignedMergeRequestsCountAsync(CancellationToken token)
     {
-        throw new NotImplementedException();
+        var connection = _context.Database.GetDbConnection();
+        var result = (await connection.QueryAsync(
+                @"SELECT R.UserId as UserId, COUNT(AMR.Id) as Count 
+        FROM AssignedMergeRequests AMR, Reviewers R 
+        WHERE R.Id = AMR.ReviewerId
+        GROUP BY ReviewerId", token))
+            .Select(x => ((int) x.UserId, (int) x.Count))
+            .ToList();
+        return result;
     }
 
-    public Task<ICollection<AssignedMergeRequest>> GetLastAssignedMergeRequests(CancellationToken token)
+    public async Task<ICollection<AssignedMergeRequest>> GetLastAssignedMergeRequests(CancellationToken token)
     {
-        throw new NotImplementedException();
+        var result = await _context.AssignedMergeRequests
+            .OrderByDescending(x => x.Id)
+            .Include(x => x.Reviewer)
+            .AsNoTracking()
+            .ToListAsync(token);
+
+        return result;
     }
 
-    public Task AssignToMergeRequestAsync(int projectId, int mergeRequestId, int userId, CancellationToken token)
+    public async Task AssignToMergeRequestAsync(int projectId, int mergeRequestId, string title, string reference, int userId, CancellationToken token)
     {
+        var connection = _context.Database.GetDbConnection();
+        var reviewerId = await connection.QueryFirstAsync<int>("SELECT ReviewerId FROM Reviewers WHERE UserId = @UserId",
+            new { UserId = userId });
+
+        _context.AssignedMergeRequests.Add(new AssignedMergeRequest
+        {
+            ReviewerId = reviewerId,
+            Title = title,
+            References = reference,
+            ProjectId = projectId,
+            MergeId = mergeRequestId
+        });
+
+        await _context.SaveChangesAsync(token);
+        
         throw new NotImplementedException();
     }
 }

@@ -42,6 +42,8 @@ public interface IContext
     /// </summary>
     /// <param name="projectId">Ид проекта</param>
     /// <param name="mergeRequestId">Ид МР</param>
+    /// <param name="title">Название МР'а</param>
+    /// <param name="reference">Ссылки</param>
     /// <param name="userId">Ид назначаемого пользователя</param>
-    public Task AssignToMergeRequestAsync(int projectId, int mergeRequestId, int userId, CancellationToken token);
+    public Task AssignToMergeRequestAsync(int projectId, int mergeRequestId, string title, string reference, int userId, CancellationToken token);
 }
