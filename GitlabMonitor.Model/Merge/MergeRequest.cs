@@ -6,7 +6,7 @@
 [Serializable]
 public sealed class MergeRequest
 {
-    public int Id { get; set; }
+    public int Iid { get; set; }
 
     public int ProjectId { get; set; }
 

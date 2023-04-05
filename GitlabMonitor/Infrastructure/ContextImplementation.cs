@@ -63,10 +63,10 @@ public sealed class ContextImplementation : IContext
     {
         var connection = _context.Database.GetDbConnection();
         var result = (await connection.QueryAsync(
-                @"SELECT R.UserId as UserId, COUNT(AMR.Id) as Count 
-        FROM AssignedMergeRequests AMR, Reviewers R 
-        WHERE R.Id = AMR.ReviewerId
-        GROUP BY ReviewerId", token))
+                @"SELECT 
+                    R.UserId as UserId, 
+                    (SELECT COUNT(1) FROM AssignedMergeRequests AMR WHERE AMR.ReviewerId = R.Id) as Count
+                    FROM Reviewers R", token))
             .Select(x => ((int) x.UserId, (int) x.Count))
             .ToList();
         return result;
@@ -87,7 +87,7 @@ public sealed class ContextImplementation : IContext
     public async Task AssignToMergeRequestAsync(int projectId, int mergeRequestId, string title, string reference, int userId, CancellationToken token)
     {
         var connection = _context.Database.GetDbConnection();
-        var reviewerId = await connection.QueryFirstAsync<int>("SELECT ReviewerId FROM Reviewers WHERE UserId = @UserId",
+        var reviewerId = await connection.QueryFirstAsync<int>("SELECT Id FROM Reviewers WHERE UserId = @UserId",
             new { UserId = userId });
 
         _context.AssignedMergeRequests.Add(new AssignedMergeRequest

@@ -25,7 +25,7 @@ Host.CreateDefaultBuilder(args)
             q.AddJob<AssignJob>(options => options.WithIdentity(jobKey));
             q.AddTrigger(options => options
                 .ForJob(jobKey)
-                .WithCronSchedule("0 0-59 * ? * 1-5"));
+                .WithCronSchedule("0 0-59 9-19 ? * 1-5"));
         });
         services.AddQuartzHostedService();
     })

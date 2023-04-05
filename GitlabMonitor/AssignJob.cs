@@ -40,6 +40,7 @@ public sealed class AssignJob : IJob
         {
             _logger.LogError("{Error}", e);
             await transaction.RollbackAsync();
+            throw;
         }
     }
 }

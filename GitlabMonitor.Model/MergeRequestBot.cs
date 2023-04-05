@@ -23,14 +23,14 @@ public sealed class MergeRequestBot
 
         var merges = await _context.GetMergeRequestsFromProjectsAsync(_projects, token);
 
-        var botMergeRequests = merges.Where(x => x.Reviewers.Any(x => x.Id == botId) || x.Assignee?.Id == botId);
+        var botMergeRequests = merges.Where(x => x.Reviewers.Any(x => x.Id == botId) || x.Assignee?.Id == botId).ToList();
 
         var mergeRequestsWithReviewer = merges.Where(x => x.Reviewers.Any(x => x.Id != botId)).ToList();
 
         foreach (var mergeRequest in botMergeRequests)
         {
             var projectId = mergeRequest.ProjectId;
-            var mergeId = mergeRequest.Id;
+            var mergeId = mergeRequest.Iid;
 
             var isAssigned = false;
 
